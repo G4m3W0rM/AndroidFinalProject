@@ -1,13 +1,13 @@
-package com.akhil.schooldiaries;
+package com.example.ramsr.schooldiaries;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class Temp extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_temp);
+        setContentView(R.layout.activity_main);
     }
 }

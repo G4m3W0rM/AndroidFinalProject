@@ -1,4 +1,4 @@
-package com.akhil.schooldiaries;
+package com.example.ramsr.schooldiaries;
 
 import org.junit.Test;
 
