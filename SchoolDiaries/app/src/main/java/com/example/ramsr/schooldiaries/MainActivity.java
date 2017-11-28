@@ -1,5 +1,7 @@
 package com.example.ramsr.schooldiaries;
 
+import android.app.FragmentTransaction;
+import android.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -7,6 +9,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
+    FragmentManager fragmentmanager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -15,12 +18,22 @@ public class MainActivity extends AppCompatActivity {
 
     public void CreateAccountClicked(View v)
     {
-        Toast.makeText(this, "Create clicked", Toast.LENGTH_SHORT).show();
+        fragmentmanager = getFragmentManager();
+        Fragment_CreateAccount createFrag = new Fragment_CreateAccount();
+        FragmentTransaction trans = fragmentmanager.beginTransaction();
+        trans.add(R.id.MyFrame, createFrag);
+        trans.addToBackStack(null);
+        trans.commit();
     }
 
     public void LoginButtonPressed(View v)
     {
-        Toast.makeText(this, "login clicked", Toast.LENGTH_SHORT).show();
+        fragmentmanager = getFragmentManager();
+        Fragment_Login LoginFrag = new Fragment_Login();
+        FragmentTransaction trans = fragmentmanager.beginTransaction();
+        trans.add(R.id.MyFrame, LoginFrag);
+        trans.addToBackStack(null);
+        trans.commit();
     }
 
 }
