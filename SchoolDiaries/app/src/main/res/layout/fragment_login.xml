@@ -73,7 +73,7 @@
             android:orientation="horizontal">
 
             <RadioButton
-                android:id="@+id/radio1"
+                android:id="@+id/Radio_Teacher"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="5dp"
@@ -81,7 +81,7 @@
                 android:text="Teacher" />
 
             <RadioButton
-                android:id="@+id/radio2"
+                android:id="@+id/Radio_Parent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Parent" />
