@@ -2,10 +2,21 @@ package com.akhil.schooldiaries;
 
 
 import android.app.Fragment;
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 
 
 /**
@@ -13,7 +24,7 @@ import android.view.ViewGroup;
  * Use the {@link Fragment_CreateAccount#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Fragment_CreateAccount extends Fragment {
+public class Fragment_CreateAccount extends Fragment implements View.OnClickListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -22,6 +33,12 @@ public class Fragment_CreateAccount extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private EditText newuserid;
+    private EditText newpassword;
+    private Button Registerme;
+    private ProgressDialog progressDialog;
+    private FirebaseAuth firebaseAuth;
 
 
     public Fragment_CreateAccount() {
@@ -59,7 +76,75 @@ public class Fragment_CreateAccount extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_create_account, container, false);
+        View view = inflater.inflate(R.layout.fragment_create_account, container, false);
+
+        progressDialog = new ProgressDialog(getContext());
+        firebaseAuth = FirebaseAuth.getInstance();
+
+        newuserid = (EditText) view.findViewById(R.id.New_UserName);
+        newpassword = (EditText) view.findViewById(R.id.New_Password);
+
+        Registerme = (Button) view.findViewById(R.id.Button_Register);
+        Registerme.setOnClickListener(this);
+        return view;
     }
 
+
+    private void RegisterUser()
+    {
+        String new_username = newuserid.getText().toString();
+        String new_password = newpassword.getText().toString();
+
+        if (new_username.isEmpty()) {
+            Toast.makeText(getContext(), "User Id cannot be empty!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(!new_username.contains("@sd.com"))
+        {
+            Toast.makeText(getContext(), "Username must be a valid rapps mail address. Make sure it ends with '@sd.com'", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (new_password.isEmpty()) {
+            Toast.makeText(getContext(), "Password cannot be empty!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(new_password.length() <  8)
+        {
+            Toast.makeText(getContext(), "Too short! Password must be atleast 8 characters long.", Toast.LENGTH_LONG).show();
+            newpassword.setText("");
+            return;
+        }
+
+        progressDialog.setTitle("Registering");
+        progressDialog.setMessage("Creating your account...");
+        progressDialog.show();
+
+        firebaseAuth.createUserWithEmailAndPassword(new_username, new_password).addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                progressDialog.dismiss();
+                if(task.isSuccessful())
+                {
+                    Toast.makeText(getContext(), "Your new account has been created!", Toast.LENGTH_SHORT).show();
+                    FirebaseAuth.getInstance().signOut();
+                    Intent i = new Intent(getActivity(), MainActivity.class);
+                    startActivity(i);
+                    getActivity().finish();
+                }
+                else
+                {
+                    Toast.makeText(getContext(), "Something went wrong! Your registration failed.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.Button_Register:
+                RegisterUser();
+        }
+    }
 }
