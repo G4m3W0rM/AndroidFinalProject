@@ -11,12 +11,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 
 /**
@@ -34,11 +37,16 @@ public class Fragment_CreateAccount extends Fragment implements View.OnClickList
     private String mParam1;
     private String mParam2;
 
+    private EditText newname;
     private EditText newuserid;
     private EditText newpassword;
     private Button Registerme;
+    private RadioButton Radio_Teacher;
+    private RadioButton Radio_Parent;
     private ProgressDialog progressDialog;
     private FirebaseAuth firebaseAuth;
+    private DatabaseReference databaseReference;
+
 
 
     public Fragment_CreateAccount() {
@@ -81,25 +89,40 @@ public class Fragment_CreateAccount extends Fragment implements View.OnClickList
         progressDialog = new ProgressDialog(getContext());
         firebaseAuth = FirebaseAuth.getInstance();
 
-        newuserid = (EditText) view.findViewById(R.id.New_UserName);
+        databaseReference = FirebaseDatabase.getInstance().getReference();
+
+        // EditText
+        newname = (EditText) view.findViewById(R.id.New_UserName);
+        newuserid = (EditText) view.findViewById(R.id.New_Email);
         newpassword = (EditText) view.findViewById(R.id.New_Password);
 
+        // Buttons
         Registerme = (Button) view.findViewById(R.id.Button_Register);
         Registerme.setOnClickListener(this);
+
+        Radio_Teacher = (RadioButton) view.findViewById(R.id.New_Teacher);
+        Radio_Parent = (RadioButton) view.findViewById(R.id.New_Parent);
+
         return view;
     }
 
 
     private void RegisterUser()
     {
-        String new_username = newuserid.getText().toString();
+        final String new_name = newname.getText().toString();
+        String new_email = newuserid.getText().toString();
         String new_password = newpassword.getText().toString();
 
-        if (new_username.isEmpty()) {
-            Toast.makeText(getContext(), "User Id cannot be empty!", Toast.LENGTH_SHORT).show();
+        if (new_name.isEmpty()) {
+            Toast.makeText(getContext(), "User Name cannot be empty!", Toast.LENGTH_SHORT).show();
             return;
         }
-        if(!new_username.contains("@sd.com"))
+
+        if (new_email.isEmpty()) {
+            Toast.makeText(getContext(), "Email Id cannot be empty!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(!new_email.contains("@sd.com"))
         {
             Toast.makeText(getContext(), "Username must be a valid rapps mail address. Make sure it ends with '@sd.com'", Toast.LENGTH_LONG).show();
             return;
@@ -120,13 +143,16 @@ public class Fragment_CreateAccount extends Fragment implements View.OnClickList
         progressDialog.setMessage("Creating your account...");
         progressDialog.show();
 
-        firebaseAuth.createUserWithEmailAndPassword(new_username, new_password).addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
+
+        firebaseAuth.createUserWithEmailAndPassword(new_email, new_password).addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 progressDialog.dismiss();
                 if(task.isSuccessful())
                 {
+                    String uid = firebaseAuth.getCurrentUser().getUid();
                     Toast.makeText(getContext(), "Your new account has been created!", Toast.LENGTH_SHORT).show();
+                    AddUserName(new_name, uid);
                     FirebaseAuth.getInstance().signOut();
                     Intent i = new Intent(getActivity(), MainActivity.class);
                     startActivity(i);
@@ -138,6 +164,19 @@ public class Fragment_CreateAccount extends Fragment implements View.OnClickList
                 }
             }
         });
+    }
+
+    private void AddUserName(String username, String uid)
+    {
+        if(Radio_Teacher.isChecked())
+        {
+            databaseReference.child("staff").child(uid).child("name").setValue(username);
+        }
+
+        else if (Radio_Parent.isChecked())
+        {
+            databaseReference.child("parents").child(uid).child("name").setValue(username);
+        }
     }
 
     @Override
